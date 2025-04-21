@@ -1,0 +1,33 @@
+type Query {
+    getItem(id: ID!): Item
+    listItems: [Item]
+}
+
+type Mutation {
+    createItem(input: CreateItemInput!): Item
+    updateItem(id: ID!, input: UpdateItemInput!): Item
+    deleteItem(id: ID!): Boolean
+}
+
+type Item {
+    id: ID!
+    name: String!
+    description: String
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input CreateItemInput {
+    name: String!
+    description: String
+}
+
+input UpdateItemInput {
+    name: String
+    description: String
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+} 

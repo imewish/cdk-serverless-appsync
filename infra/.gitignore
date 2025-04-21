@@ -1,0 +1,11 @@
+infra/*.js
+!infra/jest.config.js
+infra/*.d.ts
+infra/node_modules
+
+# CDK asset staging directory
+infra/.cdk.staging
+infra/cdk.out
+node_modules
+*.d.ts
+*.js
