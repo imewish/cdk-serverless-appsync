@@ -199,22 +199,10 @@ export class ServerlessStack extends cdk.Stack {
       // Add custom permissions from config
       if (permissions?.length) {
         permissions.forEach(permission => {
-          // Update resource ARNs to include service name and stage
-          const updatedResources = permission.resources.map(resource => {
-            // Only update specific resource types, not all ARNs
-            if (resource.includes('dynamodb:table')) {
-              return resource.replace(
-                /(arn:aws:dynamodb:[^:]+:[^:]+:table\/)([^/]+)/,
-                `$1${this.config.serviceName}-${this.config.stage}-$2`
-              );
-            }
-            return resource;
-          });
-
           func.addToRolePolicy(new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
             actions: permission.actions,
-            resources: updatedResources,
+            resources: permission.resources,
           }));
         });
       }
