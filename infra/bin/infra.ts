@@ -5,6 +5,7 @@ import { ServerlessStack } from '../lib/serverless-stack';
 import { createServerlessConfig } from '../lib/serverless-config';
 import { SecretsManager } from 'aws-sdk';
 import * as path from 'path';
+import { DynamoDBStack } from '../lib/dynamodb-stack';
 
 async function validateSecrets(config: ReturnType<typeof createServerlessConfig>) {
   const secretsManager = new SecretsManager({region: 'us-east-1'});
@@ -54,6 +55,7 @@ async function main() {
     console.error('Secret validation failed:', error);
     process.exit(1);
   }
+  
 
   // Create the serverless stack
   new ServerlessStack(app, 'ServerlessStack', {
@@ -62,6 +64,21 @@ async function main() {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION || config.region,
     },
+  });
+
+  // Create the DynamoDB stack
+  new DynamoDBStack(app, 'DynamoDBStack', {
+    stage: config.stage,
+    tableName: `${config.serviceName}-${config.stage}-items`,
+    partitionKey: {
+      name: 'id',
+      type: cdk.aws_dynamodb.AttributeType.STRING,
+    },
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION || config.region,
+    },
+    tags: config.tags,
   });
 
   app.synth();

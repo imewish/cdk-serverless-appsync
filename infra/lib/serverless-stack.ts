@@ -1,5 +1,4 @@
 import * as cdk from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as appsync from 'aws-cdk-lib/aws-appsync';
@@ -27,9 +26,6 @@ export class ServerlessStack extends cdk.Stack {
       cdk.Tags.of(this).add(key, value);
     });
 
-    // Create DynamoDB table
-    const table = this.createDynamoDBTable(props.config.dynamoDB);
-
     // Create Lambda functions
     this.createLambdaFunctions(props.config.functions, props.config.defaultLambdaConfig);
 
@@ -42,24 +38,6 @@ export class ServerlessStack extends cdk.Stack {
 
   private getResourceName(resource: string): string {
     return `${this.config.serviceName}-${this.config.stage}-${resource}`;
-  }
-
-  private createDynamoDBTable(config: ServerlessConfig['dynamoDB']): dynamodb.Table {
-    return new dynamodb.Table(this, 'ItemsTable', {
-      tableName: this.getResourceName(config.tableName),
-      partitionKey: {
-        name: config.partitionKey.name,
-        type: dynamodb.AttributeType[config.partitionKey.type],
-      },
-      sortKey: config.sortKey ? {
-        name: config.sortKey.name,
-        type: dynamodb.AttributeType[config.sortKey.type],
-      } : undefined,
-      billingMode: dynamodb.BillingMode[config.billingMode || 'PAY_PER_REQUEST'],
-      readCapacity: config.readCapacity,
-      writeCapacity: config.writeCapacity,
-      removalPolicy: config.removalPolicy === 'DESTROY' ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
-    });
   }
 
   private async getSecretValue(secretName: string, key: string): Promise<string> {
